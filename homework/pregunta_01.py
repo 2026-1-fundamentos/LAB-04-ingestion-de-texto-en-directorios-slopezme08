@@ -71,3 +71,35 @@ def pregunta_01():
 
 
     """
+    import glob
+    import os
+    import zipfile
+    import pandas as pd
+
+    input_dir = "files/input"
+    output_dir = "files/output"
+    zip_path = "files/input.zip"
+    os.makedirs(output_dir, exist_ok=True)
+    if os.path.exists(zip_path):
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            zip_ref.extractall("files")
+
+    def generate_dataset(dataset_type):
+        data = []
+        path_pattern = os.path.join(input_dir, dataset_type, "*", "*.txt")
+
+        for file_path in glob.glob(path_pattern):
+            sentiment = os.path.basename(os.path.dirname(file_path))
+
+            with open(file_path, "r", encoding="utf-8") as f:
+                phrase = f.read().strip()
+
+            data.append({"phrase": phrase, "target": sentiment})
+
+        df = pd.DataFrame(data)
+        output_file = os.path.join(output_dir, f"{dataset_type}_dataset.csv")
+        df.to_csv(output_file, index=False)
+
+    generate_dataset("train")
+    generate_dataset("test")
+pregunta_01()
